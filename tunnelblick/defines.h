@@ -999,7 +999,8 @@ name = newValue;                                    \
 @"doNotShowNotificationWindowOnMouseover",	\
 @"doNotShowDisconnectedNotificationWindows",	\
 @"doNotShowConnectionSubmenus",	\
-@"doNotShowVpnDetailsMenuItem",	\
+@"doNotShowStatusMenuItem",    \
+@"doNotShowVpnDetailsMenuItem",    \
 @"doNotShowSuggestionOrBugReportMenuItem",	\
 @"doNotShowAddConfigurationMenuItem",	\
 @"doNotShowSplashScreen",	\

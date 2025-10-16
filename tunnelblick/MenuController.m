@@ -1520,6 +1520,49 @@ TBSYNTHESIZE_OBJECT(retain, NSDate       *, lastCheckNow,              setLastCh
     [self performSelectorOnMainThread: @selector(menuExtrasWereAdded) withObject: nil waitUntilDone: NO];
 }
 
+- (void) quitWithAdminApproval: (id) sender
+{
+    (void) sender;
+    //[self terminateBecause: terminatingBecauseOfQuit];
+    NSMutableDictionary * threadDict = [@{}
+                                         mutableCopy];
+    
+    [NSThread detachNewThreadSelector: @selector(quitWithAdminApprovalHelperThread:) toTarget: self withObject: threadDict];
+}
+
+-(void) quitWithAdminApprovalHelperThread: (NSMutableDictionary *) dict  {
+
+    // Runs in a separate thread so user authorization doesn't hang the main thread
+    
+    NSAutoreleasePool * pool = [[NSAutoreleasePool alloc] init];
+
+    NSString * message = NSLocalizedString(@"You need administrator privilages to exit Tunnelblick.", @"Window text");
+    
+    SystemAuth * auth = [SystemAuth newAuthWithPrompt: message];
+    if (  auth  ) {
+        [auth release];
+        
+        OSStatus status = 0; // User cancelled installation
+        [dict setObject: [NSNumber numberWithInt: status] forKey: @"status"];
+    } else {
+        OSStatus status = 1; // User cancelled installation
+        [dict setObject: [NSNumber numberWithInt: status] forKey: @"status"];
+    }
+
+    [self performSelectorOnMainThread: @selector(finishQuitWithAdminApproval:) withObject: dict waitUntilDone: NO];
+    
+    [pool drain];
+}
+
+-(void) finishQuitWithAdminApproval: (NSMutableDictionary *) dict {
+    
+    OSStatus status = [dict[@"status"] intValue];
+
+    if (  status == 0  ) {
+        [self terminateBecause: terminatingBecauseOfQuit];
+    }
+}
+
 - (IBAction) quit: (id) sender
 {
     (void) sender;
@@ -1916,7 +1959,10 @@ static pthread_mutex_t myVPNMenuMutex = PTHREAD_MUTEX_INITIALIZER;
     quitItem = [[NSMenuItem alloc] init];
     [quitItem setTitle: NSLocalizedString(@"Quit Tunnelblick", @"Menu item")];
     [quitItem setTarget: self];
-    [quitItem setAction: @selector(quit:)];
+    [quitItem setAction: @selector(quitWithAdminApproval:)];
+    
+    
+    BOOL showStatusMenuItem =    ( ! [gTbDefaults boolForKey:@"doNotShowStatusMenuItem"] );
 
     [statusMenuItem release];
     statusMenuItem = [[NSMenuItem alloc] init];
@@ -1926,8 +1972,10 @@ static pthread_mutex_t myVPNMenuMutex = PTHREAD_MUTEX_INITIALIZER;
     [myVPNMenu release];
     myVPNMenu = [[NSMenu alloc] init];
     [myVPNMenu setDelegate:self];
-
-    [myVPNMenu addItem:statusMenuItem];
+    
+    if (  showStatusMenuItem  ) {
+        [myVPNMenu addItem:statusMenuItem];
+    }
 
     if (  [gFileMgr fileExistsAtPath: L_AS_T_DISABLED_NETWORK_SERVICES_PATH]  ) {
         [myVPNMenu addItem: reenableInternetItem];

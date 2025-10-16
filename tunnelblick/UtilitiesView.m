@@ -93,7 +93,7 @@ extern TBUserDefaults * gTbDefaults;
                                                            @"<p>See <a href=\"https://tunnelblick.net/cInstallKexts.html\">Installing Tunnelblick's Tun and Tap System Extensions</a> [tunnelblick.net] for details.</p>"
                                                            @"<p><strong>Disabled</strong> unless Tunnelblick is running on macOS Big Sur or later.</p>",
                                                            @"HTML info for the 'Install tun and tap system extensions...' button."))];
-    [utilitiesInstallKextsButton setEnabled: TRUE];
+    [utilitiesInstallKextsButton setEnabled: FALSE];
 }
 
 -(void) awakeFromNib
@@ -113,14 +113,16 @@ extern TBUserDefaults * gTbDefaults;
 														   @" connections and quit. If this button does not quit all OpenVPN processes, you may need to use the macOS Activity Monitor"
 														   @" application to 'Force Quit' the process.</p>",
 														   @"HTML info for the 'Quit All OpenVPN Processes' button."))
-	 disabled: ! ALLOW_OPENVPNSTART_KILLALL];
+	 //disabled: ! ALLOW_OPENVPNSTART_KILLALL];
+     disabled: true];
 	
 	[consoleLogToClipboardButton
 	  setTitle: NSLocalizedString(@"Copy Console Log to Clipboard", @"Button")
 	 infoTitle: attributedStringFromHTML(NSLocalizedString(@"<p>Copies the last part of the Console Log to the Clipboard so it may be pasted into an email or other document.</p>"
 														   @"<p>The log contains details of Tunnelblick's and OpenVPN's operations. It includes normal status messages"
 														   @" and detailed error messages that are too long to present to the user in a normal dialog window.</p>",
-														   @"HTML info for the 'Copy Console Log to Clipboard' button."))];
+														   @"HTML info for the 'Copy Console Log to Clipboard' button."))
+     disabled: true];
 	
 	[utilitiesExportTunnelblickSetupButton
 	  setTitle: NSLocalizedString(@"Export Tunnelblick Setup", @"Button")
@@ -128,7 +130,8 @@ extern TBUserDefaults * gTbDefaults;
 														   @" for all users of this computer, to a compressed file on the Desktop.</p>"
 														   @"<ul><li>Credentials saved in the Keychain are <strong>not</strong> exported.</li>"
 														   @"<li>The export may take a long time.</li></ul>",
-														   @"HTML info for the 'Export Tunnelblick Setup' button."))];
+														   @"HTML info for the 'Export Tunnelblick Setup' button."))
+     disabled: true];
 	
 	[utilitiesUninstallButton
 	  setTitle: NSLocalizedString(@"Uninstall Tunnelblick...", @"Button")
@@ -136,7 +139,8 @@ extern TBUserDefaults * gTbDefaults;
                                                            @"<p><strong>Disabled</strong> if Tunnelblick is not installed.</p>",
 														   @"HTML info for the 'Uninstall Tunnelblick...' button."))];
     BOOL tunnelblickIsInApplicationsFolder = [[[NSBundle mainBundle] bundlePath] isEqualToString: APPLICATIONS_TB_APP];
-    [utilitiesUninstallButton setEnabled: tunnelblickIsInApplicationsFolder];
+    //[utilitiesUninstallButton setEnabled: tunnelblickIsInApplicationsFolder];
+    [utilitiesUninstallButton setEnabled: false];
 	
     [self setupInstallOrUninstallKextsButton];
     
@@ -150,8 +154,9 @@ extern TBUserDefaults * gTbDefaults;
 														   @"<p>For information about using easy-rsa, see <a href=\"https://openvpn.net/index.php/open-source/documentation/howto.html#pki\">Setting"
 														   @" up your own Certificate Authority (CA) and generating certificates and keys for an OpenVPN server and multiple clients</a> [openvpn.net].</p>"
 														   @"<p>For details of Tunnelblick's customizations of easy-rsa, see the README file located in the folder.</p>",
-														   @"HTML info for the 'Open easy-rsa in Terminal' button."))];
-	
+														   @"HTML info for the 'Open easy-rsa in Terminal' button."))
+     disabled: true];
+
     NSString * easyRsaPathMessage;
     if (  [gTbDefaults stringForKey: @"easy-rsaPath"]  ) {
         easyRsaPathMessage = easyRsaPathToUse(YES);
